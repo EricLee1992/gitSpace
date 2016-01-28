@@ -1,0 +1,440 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>怪兽追英雄</title>
+<style type="text/css">
+	body {
+		text-align : center;
+	}
+	#rank {
+		font: normal small-caps bold 20px 微软雅黑;
+		color: #FFFFFF;	
+	}
+	#rank hr {
+		width: 270px;
+		color: #999;	
+	}
+	#rank ul {
+		font: normal small-caps normal 14px 微软雅黑;	
+		text-align: left;
+		list-style: none;
+	}
+	#rank span {
+		font: normal small-caps bold 14px 微软雅黑;
+		display: block;
+		width: 70px;
+		float: left;
+		text-align: left;
+	}
+	#rank div span {
+		font: normal small-caps normal 12px 微软雅黑;
+		display: block;
+		width: 70px;
+		float: left;
+		text-align: left;
+	}
+</style>
+<script src="http://libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript">
+	$(function() {
+		upGoals('');
+	})
+	//获取分数
+	var getGoals = function(data) {
+		$('#rank').empty();
+		$('#rank').append('积分榜<br/><hr>');
+		var title = '<span>&nbsp&nbsp名次</span><span>成绩(s)</span><span>ip</span><span>记录时间</span>';
+		$('#rank').append(title);
+		$('#rank').append(data);
+	}
+	//上传分数
+	var upGoals = function(goal) {
+		if (subCount == 0) {
+			console.log('run:' + goal);
+			$.ajax({
+				type: 'post',
+				url: 'server/conn.php',
+				data: {'rec_goal': goal},
+				dataType: 'text',
+				cache: false,
+				success: function(data) {
+					getGoals(data);
+				},
+				error: function() {
+					console.log('error');
+				}	
+			});
+			subCount++;	
+		}
+	}
+</script>
+</head>
+
+<body>
+	<script>
+		<!-- 图片资源-->
+		var bgImg_src = 'img/bg.png';//背景图片
+		var heroImg_src = 'img/hero2.png';//英雄图片
+		var monImg_src = 'img/Goomba.png';//怪兽图片
+		var startImg_src = 'img/start.png';//开始按钮
+		var startedImg_src = 'img/start_on.png';//开始按钮鼠标经过
+		var reloadImg_src = 'img/reload.png';//重新开始按钮
+		var reloadedImg_src = 'img/reload_on.png';//重新开始按钮鼠标经过
+		var audioImg_src = 'img/audio.png';//有声音
+		var audioedImg_src = 'img/audioed.png';//声音鼠标经过
+		var muteImg_src = 'img/audio_no.png';//静音
+		var mutedImg_src = 'img/audioed_no.png';//静音鼠标经过
+		
+		<!-- 素材尺寸-->
+		//背景图
+		var bgImg_size = {
+			width: 512,
+			height: 480
+		};
+		//英雄图片
+		var heroImg_size = {
+			width: 32,
+			height: 32	
+		};
+		//npc
+		var monsterImg_size = {
+			width: 32,
+			height: 32	
+		};
+		//周围丛林宽度
+		var treeImg_size = {
+			width: 32	
+		};
+		
+		<!-- 声音资源-->
+		var audioBtn_src = 'sound/btn.mp3';//按钮音效
+		var audioBg_src = 'sound/bg.mp3';//背景音效
+		
+		<!-- 游戏状态-->
+		var flag = false;//表示未开始
+		var hero_speed = 256;//英雄初始速度
+		var monster_speed = 50;//npc初始速度
+		var subCount = 0;//提交分数的次数，只有为0时才能提交，并且游戏一句完后只提交一次
+		var ipAdd = '';//当前ip
+		var nowDate = '';//当前时间
+				
+		//初始化画布
+		var canvasDiv = document.createElement('div');
+		canvasDiv.style.cssText = 'width: 812px; height: 480px; margin: 0 auto; background-color: #FFFFFF';
+		var canvas = document.createElement('canvas');
+		var ctx = canvas.getContext('2d');
+		canvas.width = 512;
+		canvas.height = 480;
+		canvasDiv.appendChild(canvas);
+		
+		//积分榜
+		var rankDiv = document.createElement('div');
+		rankDiv.style.cssText = 'width: 298px; height: 480px;background-color: #008B00; display: inline; float: right';
+		rankDiv.setAttribute('id', 'rank');
+		canvasDiv.appendChild(rankDiv);
+		document.body.appendChild(canvasDiv);
+		
+		//初始化操作面板
+		var controlDiv = document.createElement('div');
+		controlDiv.style.cssText = 'width: 512px; height: 150px; background-color: #FFFFFF; margin: 0 auto';
+		document.body.appendChild(controlDiv);
+		
+		//初始化声音
+		var audioBtn = document.createElement('audio'); //按钮音效
+		audioBtn.src = audioBtn_src;
+		var audioBg = document.createElement('audio');//背景音效
+		audioBg.src = audioBg_src;
+		audioBg.autoplay = 'autoplay';
+		audioBg.loop = 'loop';	
+		//为audio标签增加停止功能
+		HTMLAudioElement.prototype.stop = function() {
+			this.pause();
+			this.currentTime(0.0);	
+		}
+				
+		//开始按钮
+		var startImg = new Image();
+		startImg.src = startImg_src;
+		controlDiv.appendChild(startImg);
+		startImg.onmouseover = function() {
+			this.src = startedImg_src;
+			audioBtn.currentTime = 0.0;
+			audioBtn.play();
+		}
+		startImg.onmouseout = function() {
+			this.src = startImg_src;
+		}
+		//开始游戏
+		startImg.onclick = function() {
+			//如已经有相碰事件发生，则也不能开始，只能点击重新游戏按钮
+			if (!flag && !isHit()) {
+				flag = true;
+				monsterMove();//npc开始移动
+				monsterSpeedControl();//npc速度控制器开始运行
+				subCount = 0;//是否可提交分数标识归零
+				//heroImg_src = 'img/' + (Math.random()*3 + 1) + '.png';
+				//heroImg.src = heroImg_src;
+				recordTime();//计时器开始运行		
+			}	
+		}
+		
+		//重置按钮
+		var reloadImg = new Image();
+		reloadImg.src = reloadImg_src;
+		controlDiv.appendChild(reloadImg);
+		reloadImg.onmouseover = function() {
+			this.src = reloadedImg_src;	
+			audioBtn.currentTime = 0.0;
+			audioBtn.play();
+		}
+		reloadImg.onmouseout = function() {
+			this.src = reloadImg_src;	
+		}
+		reloadImg.onclick = function() {
+			flag = false;
+			reset();	
+		}
+		
+		//声音按钮
+		var audioImg = new Image();
+		audioImg.src = audioImg_src;
+		audioImg.onmouseover = function() {
+			if (this.src.indexOf(audioImg_src) > 0) {
+				this.src = audioedImg_src;
+			}
+			if (this.src.indexOf(muteImg_src) > 0) {
+				this.src = mutedImg_src;	
+			}
+		}
+		audioImg.onmouseout = function() {
+			if (this.src.indexOf(audioedImg_src) > 0) {
+				this.src = audioImg_src;
+			}
+			if (this.src.indexOf(mutedImg_src) > 0) {
+				this.src = muteImg_src;	
+			}	
+		}
+		audioImg.onclick = function() {
+			if (this.src.indexOf(audioedImg_src) > 0) {
+				this.src = mutedImg_src;	
+				audioBg.stop();
+			}
+			if (this.src.indexOf(mutedImg_src) > 0) {
+				this.src = 	audioedImg_src;
+				audioBg.play();
+			}
+		}
+		controlDiv.appendChild(audioImg);
+		
+    	//背景图片
+		var bgReady = false;
+		var bgImg = new Image();
+		bgImg.src = bgImg_src;
+		bgImg.onload = function() {
+				bgReady = true;
+		}
+		
+		//英雄图片
+		var heroReady = false;
+		var heroImg = new Image();
+		heroImg.src = heroImg_src;
+		heroImg.onload = function() {
+			heroReady = true;	
+		}
+		
+		//怪物图片
+		var monReady = false;
+		var monImg = new Image();
+		monImg.src = monImg_src;
+		monImg.onload = function() {
+			monReady = true;	
+		}
+		
+		//英雄对象
+		var hero = {
+			x: 0,
+			y: 0,
+			speed: 256//速度
+		};
+		
+		//怪物对象
+		var monster = {
+			x: 0,
+			y: 0,
+			speed: 50//速度	
+		};
+		
+		//时间
+		var time = 0;
+		var t_recordTime;
+		var recordTime = function() {
+			t_recordTime = setTimeout(function() {
+				time += 0.01;
+				recordTime();	
+			}, 10);
+		}
+		
+		//渲染场景、人物
+		var render = function() {
+			if (bgReady) {
+				ctx.drawImage(bgImg, 0, 0);	
+			}	
+			if (heroReady) {
+				ctx.drawImage(heroImg, hero.x, hero.y);	
+			}
+			if (monReady) {
+				ctx.drawImage(monImg, monster.x, monster.y);	
+			}
+			
+			//记分板与计时器
+			ctx.fillStyle = '#FFFFFF';
+			ctx.font = '24px Helvetica';
+			ctx.textAlign = 'left';
+			ctx.textBaseline = 'top';
+			ctx.fillText('计时：' + time.toFixed(2) + 's', 32, 32);
+		}
+		
+		//按键处理英雄的移动
+		var keysArr = {};
+		addEventListener('keydown', function(e) {
+			if (flag) {
+				keysArr[e.keyCode] = true;	
+			}
+		}, false);
+		addEventListener('keyup', function(e) {
+			if (flag) {
+				delete keysArr[e.keyCode];	
+			}
+		}, false);
+		
+		//npc移动
+		var monkeysArr = {};
+		var monKey;
+		var monsterMove = function() {
+			if (flag) {
+				setTimeout(function(){
+				if (hero.x - monster.x > 0) {
+					delete monkeysArr[37];
+					monkeysArr[39] = true;	
+				} else {
+					delete monkeysArr[39];
+					monkeysArr[37] = true;	
+				}
+				
+				if (hero.y - monster.y > 0) {
+					delete monkeysArr[38];
+					monkeysArr[40] = true;
+				} else {
+					delete monkeysArr[40];
+					monkeysArr[38] = true;	
+				}
+				monsterMove();
+			}, 500);	
+			}
+		}
+		
+		//npc移动速度处理，原理是每隔10s 速度加快50
+		var t_monsterSpeedControl;//npc速度控制计时器
+		var monsterSpeedControl = function() {
+				t_monsterSpeedControl = setTimeout(function() {
+					monster.speed += 50;
+					monsterSpeedControl();
+				}, 5000);	
+		}
+		
+		//清除定时任务
+		var myClearTimeout = function() {
+			clearTimeout(t_monsterSpeedControl);//清除npc速度控制任务
+			clearTimeout(t_recordTime);	//清除计时器任务
+		}
+		
+		//碰撞检测：碰撞后的处理
+		var isHit = function() {
+			if (Math.abs(hero.x - monster.x) < 25 && Math.abs(hero.y - monster.y) < 25) {
+				flag = false;
+				hero.speed = 0;//英雄速度归零
+				monster.speed = 0;//npc速度归零
+				myClearTimeout();//计时器停止运行
+				//上传分数
+				upGoals(time.toFixed(2));
+				return true;
+			}
+		}	
+		
+		//重新开始
+		var reset = function() {
+			hero.x = canvas.width / 2;
+			hero.y = canvas.height / 2;
+			monster.x = treeImg_size.width + (Math.random() * (canvas.width - (monsterImg_size.width * 2 + treeImg_size.width)));
+			monster.y = treeImg_size.width + (Math.random() * (canvas.height - (monsterImg_size.height * 2 + treeImg_size.width)));
+			
+			keysArr = {};
+			monkeysArr = {};
+			
+			myClearTimeout();//清除npc速度控制定时任务
+			hero.speed = hero_speed;//英雄速度复原
+			monster.speed = monster_speed;//npc速度复原
+			time = 0;//时间归零
+			flag = false;//游戏状态设为未开始
+		}
+		
+		//处理角色移动
+		var update = function(delta) {
+				//英雄的移动
+				//↑键
+				if (38 in keysArr && hero.y >= treeImg_size.width) {
+					hero.y -= hero.speed * delta;
+				}
+				//↓键
+				if (40 in keysArr && hero.y <= canvas.height - (treeImg_size.width + heroImg_size.height)) {
+					hero.y += hero.speed * delta;
+				}
+				//←键
+				if (37 in keysArr && hero.x > treeImg_size.width) {
+					hero.x -= hero.speed * delta;	
+				}
+				//→键
+				if (39 in keysArr && hero.x <= canvas.width - (treeImg_size.width + heroImg_size.width)) {
+					hero.x += hero.speed * delta;		
+				}
+				
+				//npc的移动
+				//↑键
+				if (38 in monkeysArr && monster.y >= treeImg_size.width) {
+					monster.y -= monster.speed * delta;
+				}
+				//↓键
+				if (40 in monkeysArr && monster.y <= canvas.height - (treeImg_size.width + monsterImg_size.height)) {
+					monster.y += monster.speed * delta;
+				}
+				//←键
+				if (37 in monkeysArr && monster.x > treeImg_size.width) {
+					monster.x -= monster.speed * delta;	
+				}
+				//→键
+				if (39 in monkeysArr && monster.x <= canvas.width - (treeImg_size.width + monsterImg_size.width)) {
+					monster.x += monster.speed * delta;		
+				}
+		}
+		
+		//主函数
+		var before;
+		var now;
+		var delta;//两次执行之间的时延
+		var main = function() {
+			//碰撞后的处理
+			isHit();
+			render();//渲染场景、人物
+			now = Date.now();
+			delta = now - before;
+			update(delta / 1000);
+			before = Date.now();
+			requestAnimationFrame(main);
+		}
+		reset();
+		before = Date.now();
+		main();
+    </script>
+</body>
+</html>
