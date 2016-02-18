@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+	<title>大师兄</title>
+    <link href="css/main.css" rel="stylesheet" type="text/css" />    
+</head>
+<body>
+	<!-- 标题栏
+	<header class="ui-header ">
+    <div class="ui-header-left" ><img src="img/top/back.png" /></div>
+    <div class="ui-header-right"><img src="img/top/friends.png" /></div>
+    <div class="ui-header-content"> 大师兄 </div>
+	</header>
+    -->
+    <div class="cover" id="cover"></div>
+    <div class="result-main" id="result_main">
+    	<div class="share-tips" id="share_tips" onclick="cancal_shareCover()"><img src="img/3/share_cover.png"></div>
+    	<div class="result-main-top">
+        	<div class="result-main-top-bg"><img src="img/3/title_bg.png"><span><img src="img/avatar/circle1.png"></span></div>
+            <div class="result-main-top-who">大师兄的红包</div>
+            <div class="result-main-top-cong">恭喜发财，大吉大利！</div>
+            <div class="result-main-top-zan">66.6<span>赞</span></div>
+        </div>
+        <div class="result-main-bottom"><span class="result-main-bottom-speed">你的抢红包手速为</span><span class="result-main-bottom-speed-num">88.88</span><span class="result-main-bottom-speed-symbol">秒</span><span class="result-main-bottom-percent">春节红包命中率将是<span class="result-main-bottom-percent-num">88.8</span><span class="result-main-bottom-percent-symbol">%</span><span class="result-main-bottom-comm">真是个强大的对手！<br/>快分享到朋友圈，让你的小伙伴们颤抖吧！</span></span></div>
+        <div class="result-logo">西柚工作室 中国.成都 2016</div>
+       <div class="btn_share"><img src="img/3/btn_share.png"></div>
+    </div>
+     <div class="ready_main" id="ready_main">
+     	<div class="ready_main-bg">
+        	<div class="ready_main-bg-layer"><img src="img/2/bg_layer_bg.png"></div>
+            <div class="ready_main-avatar"><img src="img/avatar/circle5.png"></div>
+            <div class="ready_main-cong">恭喜发财，大吉大利！</div>
+            <div class="ready-main-text-ready" id="div_ready"><img src="img/2/zbhl.png" onclick="ready()"></div>
+            <div class="ready-main-text-open" id="div_open"><img src="img/2/kai.png" onclick="openHB()"></div>
+            <div class="ready-main-time-bg"><img src="img/2/time_bg.png"><span class="timer-left" id="timer_left">00</span><span class="timer-right" id="timer_right">00</span></div>
+        </div>
+     </div>
+     <div class="ui-body-content">
+     	<div class="ui-body-content-item">
+        	<div class="item-avatar"><img src="img/avatar/01.png"></div>
+            <div class="item-left"><img src="img/dialog/bg-left.png"></div>
+            <div class="item-center-text"><img src="img/dialog/bg-center.png">hello！我我我我&nbsp;<span>hello！我我我我</span></div>
+            <div class="item-right"><img src="img/dialog/bg-right.png"></div>
+        </div>
+        <div class="ui-body-content-item">
+        	<div class="item-avatar"><img src="img/avatar/01.png"></div>
+            <div class="item-center-redbag"><img src="img/dialog/redbag.png" id="hb" onClick="clk_hb()"></div>
+        </div>
+     </div> 
+     <div class="ui-body-bottom"><span>西柚工作室 中国.成都 2016</span><img src="img/bottom.png"></div>
+     
+     <script type="text/javascript">
+	 
+     	<!-- 点击红包-->
+		var clk_hb = function() {
+			document.getElementById('hb').src = 'img/dialog/redbag_clk.png';
+			setTimeout(function(){
+				document.getElementById('ready_main').style.display = 'block';
+				document.getElementById('cover').style.opacity = '0.8';
+				}, 300);
+		}
+		<!-- 准备好了-->
+		var ready = function() {
+			document.getElementById('div_ready').style.display = 'none';
+			document.getElementById('div_open').style.display = 'block';
+			timer();
+		}
+		<!-- 点击开-->
+		var openHB = function() {
+			clearTimeout(t);
+			document.getElementById('ready_main').style.display = 'none';
+			document.getElementById('result_main').style.display = 'block';
+		}
+		<!-- 计时，毫秒级别-->
+		var time = 0;
+		var time_left = 0;
+		var t;
+		var timer = function() {
+			t = setTimeout(function() {
+				time += 1;
+				if (time == 100) {
+					time = 0;
+					time_left += 1;
+					if (time_left < 10) {
+						document.getElementById('timer_left').innerHTML = '0' + time_left;
+					} else {
+						document.getElementById('timer_left').innerHTML = time_left;
+					}
+				}
+				if (time < 10) {
+					document.getElementById('timer_right').innerHTML = '0' + time;
+				} else {
+					document.getElementById('timer_right').innerHTML = time;	
+				}
+				timer();
+			} ,10);
+		}
+		<!-- 隐藏分享提示覆盖层-->
+		var cancal_shareCover = function() {
+			document.getElementById('share_tips').style.display = 'none';
+		}
+		
+		<!-- 异步请求-->
+		var xmlHttpReq = null;
+		if (window.ActiveXObject) {
+			xmlHttpReq = new ActiveXObject('Microsoft.XMLHTTP');	
+		} else if (window.XMLHttpRequest) {
+			xmlHttpReq = new XMLHttpRequest();	
+		}
+		if (xmlHttpReq != null) {
+			xmlHttpReq.open('GET', 'server/server.php', true);
+			xmlHttpReq.send('');
+			xmlHttpReq.onreadystatechange = function() {
+				if (xmlHttpReq.readyState == 4 && xmlHttpReq.status == 200) {
+					alert(xmlHttpReq.responseText);
+				}
+			}; 
+		}
+     </script>
+</body>
+</html>

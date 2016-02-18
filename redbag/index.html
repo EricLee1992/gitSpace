@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+	<title>抢红包，测手速</title>
+    <link href="css/main.css" rel="stylesheet" type="text/css" />    
+</head>
+<body>
+	<!-- 标题栏
+	<header class="ui-header ">
+    <div class="ui-header-left" ><img src="img/top/back.png" /></div>
+    <div class="ui-header-right"><img src="img/top/friends.png" /></div>
+    <div class="ui-header-content"> 大师兄 </div>
+	</header>
+    -->
+    <div style="display: none"><img src="http://vikor.org/games/redbag/img/logoIMG.jpg"></div>
+    <div class="cover" id="cover"></div>
+    <div class="result-main" id="result_main">
+    	<div class="share-tips" id="share_tips" onclick="cancal_shareCover()"><img src="img/3/share_cover.png"></div>
+    	<div class="result-main-top">
+        	<div class="result-main-top-bg"><img src="img/3/title_bg.png"><span><img src="img/avatar/circle1.png" id="avatar_result"></span></div>
+            <div class="result-main-top-who" id="who_result">大师兄的红包</div>
+            <div class="result-main-top-cong">恭喜发财，大吉大利！</div>
+            <div class="result-main-top-zan" id="result_zan_num">66.6<span>赞</span></div>
+        </div>
+        <div class="result-main-bottom"><span class="result-main-bottom-speed">你的抢红包手速为</span><span class="result-main-bottom-speed-num" id="result_speed_num">88.88</span><span class="result-main-bottom-speed-symbol">秒</span><span class="result-main-bottom-percent">春节红包命中率将是<span class="result-main-bottom-percent-num" id="result_percent_num">88.8</span><span class="result-main-bottom-percent-symbol">%</span><span class="result-main-bottom-comm" id="result_comm">真是个强大的对手！<br/>快分享到朋友圈，让你的小伙伴们颤抖吧！</span></span></div>
+        <div class="result-logo">西柚工作室 中国.成都 2016</div>
+       <div class="btn_share"><img src="img/3/btn_share.png" onclick="share()"></div>
+    </div>
+     <div class="ready_main" id="ready_main">
+     <div class="ready-main-who" id="who_ready">大师兄<span><br/>给你发了一个红包</span></div>
+     	<div class="ready_main-bg">
+        	<div class="ready_main-bg-layer"><img src="img/2/bg_layer.png"></div>
+            <div class="ready_main-avatar"><img src="img/avatar/circle5.png" id="avatar_ready"></div>
+            <div class="ready_main-cong">恭喜发财，大吉大利！</div>
+            <div class="ready-main-text-coin-ready" id="div_ready"><img src="img/2/ready.png" onClick="ready()"></div>
+            <div class="ready-main-text-coin-open" id="div_open"><img src="img/2/open.png" onClick="openHB()"></div>
+            <div class="ready-main-text-coin-loading" id="div_loading"><img src="img/2/loading.gif"></div>
+            <div class="ready-main-time-bg"><img src="img/2/time_bg.png"><span class="timer-left" id="timer_left">00</span><span class="timer-right" id="timer_right">00</span></div>
+        </div>
+     </div>
+     <div class="ui-body-content" id="ui-body-content">
+     </div> 
+     <div class="ui-body-bottom"><span>西柚工作室 中国.成都 2016</span><img src="img/bottom.png"></div>
+     
+     <script type="text/javascript">
+	 	//用户标识
+		var userKey = '';
+     	<!-- 点击红包-->
+		var clk_hb = function() {
+			document.getElementById('hb').src = 'img/dialog/redbag_clk.png';
+			setTimeout(function(){
+				document.getElementById('ready_main').style.display = 'block';
+				document.getElementById('cover').style.opacity = '0.8';
+				}, 300);
+		}
+		<!-- 准备好了-->
+		var ready = function() {
+			document.getElementById('div_ready').style.display = 'none';
+			document.getElementById('div_open').style.display = 'block';
+			timer();
+		}
+		<!-- 点击开-->
+		var openHB = function() {
+			clearTimeout(t);
+			//显示铜钱转动效果
+			document.getElementById('div_open').style.display = 'none';
+			document.getElementById('div_loading').style.display = 'block';
+			setTimeout(function() {
+				var speed;
+				var right = time<10?'0'+time:time;
+				upGoal(time_left + '.' + right);	
+			}, 2000);
+		}
+		<!-- 计时，毫秒级别-->
+		var time = 0;
+		var time_left = 0;
+		var t;
+		var timer = function() {
+			t = setTimeout(function() {
+				time += 1;
+				if (time == 100) {
+					time = 0;
+					time_left += 1;
+					if (time_left < 10) {
+						document.getElementById('timer_left').innerHTML = '0' + time_left;
+					} else {
+						document.getElementById('timer_left').innerHTML = time_left;
+					}
+				}
+				if (time < 10) {
+					document.getElementById('timer_right').innerHTML = '0' + time;
+				} else {
+					document.getElementById('timer_right').innerHTML = time;	
+				}
+				timer();
+			} ,10);
+		}
+		<!-- 隐藏分享提示覆盖层-->
+		var cancal_shareCover = function() {
+			document.getElementById('share_tips').style.display = 'none';
+		}
+		
+		<!-- 分享按钮-->
+		var share = function() {
+			document.getElementById('share_tips').style.display = 'block';
+			document.title = titleStr;
+		}
+		
+		<!-- 状态-->
+		var title;
+		var avatar;
+		
+		<!-- 异步请求-->		
+		var xmlHttpReq = null;
+		/*页面初始化*/
+		var init = function() {
+			if (window.ActiveXObject) {
+			xmlHttpReq = new ActiveXObject('Microsoft.XMLHTTP');	
+		} else if (window.XMLHttpRequest) {
+			xmlHttpReq = new XMLHttpRequest();	
+		}
+		if (xmlHttpReq != null) {
+			xmlHttpReq.open('GET', 'server/server.php', true);
+			xmlHttpReq.send('');
+			xmlHttpReq.onreadystatechange = function() {
+				if (xmlHttpReq.readyState == 4 && xmlHttpReq.status == 200) {
+					var data = JSON.parse(xmlHttpReq.responseText);
+					document.title = '我是' + data.avatar_name + '，抢红包测手速！和我比拼一下吧！';//该表标题为头像名字
+					userKey = data.userKey;
+					//首页对话条数
+					var length = data.def_let.length;
+					var insertDom = '';//插入的html dom
+					for (var i = 0; i < length; i++) {
+						insertDom += '<div class="ui-body-content-item">'
+        											+'<div class="item-avatar"><img src="' + data.avatar_path_rect + '"></div>'
+          											+'<div class="item-left"><img src="img/dialog/bg-left.png"></div>'
+            										+'<div class="item-center-text"><img src="img/dialog/bg-center.png">'
+													+ data.def_let[i] + '&nbsp;<span>'
+													+ data.def_let[i] + '</span></div>'
+            										+ '<div class="item-right"><img src="img/dialog/bg-right.png"></div></div>';
+					}
+					insertDom += '<div class="ui-body-content-item">'
+        													+'<div class="item-avatar"><img src="' + data.avatar_path_rect + '">'				 															+'</div>'
+            												+'<div class="item-center-redbag"><img src="img/dialog/redbag.png"' 										  															+'id="hb" onClick="clk_hb()"></div></div>';
+					insertDom += '<img src="img/bg/bg.jpg" class="ui-body-content-mark">';
+					document.getElementById('ui-body-content').innerHTML = insertDom;
+					document.getElementById('avatar_ready').src = data.avatar_path_circle;
+					document.getElementById('who_ready').innerHTML = data.avatar_name + '<span><br/>给你发了一个红包</span>';
+					document.getElementById('avatar_result').src = data.avatar_path_circle;
+					document.getElementById('who_result').innerHTML = data.avatar_name + '的红包';
+				}
+			}
+			}
+		}
+		/*上传成绩，并返回统计结果*/
+		var upGoal = function(goal) {
+			if (window.ActiveXObject) {
+			xmlHttpReq = new ActiveXObject('Microsoft.XMLHTTP');	
+		} else if (window.XMLHttpRequest) {
+			xmlHttpReq = new XMLHttpRequest();	
+		}
+			if (xmlHttpReq != null) {
+				xmlHttpReq.open('POST', 'server/goal.php', true);
+				xmlHttpReq.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+				xmlHttpReq.send('goal=' + goal + '&userKey=' + userKey);
+				xmlHttpReq.onreadystatechange = function() {
+					if (xmlHttpReq.readyState == 4 && xmlHttpReq.status == 200) {
+						var data = JSON.parse(xmlHttpReq.responseText);
+						document.getElementById('result_zan_num').innerHTML = data.zanValue + '<span>赞</span>';
+						document.getElementById('result_speed_num').innerHTML = goal;
+						document.getElementById('result_comm').innerHTML = data.comment1 + data.comment2 + '<br/>快分享到朋友圈，' + data.share_comm;
+						document.getElementById('result_percent_num').innerHTML = data.percent.toFixed(2);
+						//更改网页title
+						document.title = '我的抢红包手速是' + goal + '秒，' + '春节红包命中率是' + data.percent.toFixed(2) + '%，不服来战！';
+						/*此时隐藏第二层，显示结果页面层*/
+						document.getElementById('ready_main').style.display = 'none';
+						document.getElementById('result_main').style.display = 'block';
+					}
+				}
+			}
+		}
+		
+		init();
+	</script>
+</body>
+</html>

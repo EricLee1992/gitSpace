@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<title>大师兄</title>
+	<style>
+		* {
+		    -webkit-overflow-scrolling: touch;
+		    margin: 0px;
+		    padding: 0px;
+		    outline: none !important;
+		    font-family: "微软雅黑 Light","微软雅黑";
+		}
+		body {
+			background-color: #e0e0e0;	
+		}
+		.cover{
+			position: fixed;
+			top: 0px;
+			left: 0px;
+			background-color: #000000;
+			opacity: 0.3;
+			width: 100%;
+			height: 100%;
+			z-Index: 998;
+		}
+		.ui-header{
+			height: 123px;
+		    line-height: 123px;
+		    background: #343438;
+		    box-sizing: border-box;
+		    overflow: hidden;
+		    text-align: center;
+		    position: fixed;
+		    color: #fff;
+		    width: 100%;
+		    top: 0;
+		    left: 0;
+		}
+		.ui-header-left{
+			float: left;
+		    width: 88px;
+		    height: 100%;
+			padding-left: 10px;
+			padding-top: 10px;
+		}
+		.ui-header-right{
+			float: right;
+		    text-align: center;
+		    height: 50px;
+		    width: 53px;
+			padding-right: 10px;
+		}
+		.ui-header-content{
+			margin: 0 50px;
+		    height: 100%;
+		    overflow: hidden;
+		    font-size: 38.4px;
+		    font-weight: bold;
+		}
+		.ui-body-content{
+			background-color: #e0e0e0;
+			background: url(img/bg/bg.png) no-repeat;
+			background-position: right bottom;
+			width: 100%;
+			height: 1100px;
+			padding-top: 60px;
+		}
+		.ui-body-content-item{
+			height: 79px;
+			width: auto;
+			margin: 0 0 60px 10px;
+		}
+		.item-avatar{
+			width: 77px;
+			height: 77px;
+			background: url(img/avatar/01.png);
+			float: left;
+		}
+		.item-left{
+			width: 30px;
+			height: 79px;
+			margin-left: 10px;
+			background: url(img/dialog/bg-left.png);
+			float: left;
+			margin-left: 25px;
+		}
+		.item-center-text{
+			width: auto;
+			height: 79px;
+			line-height: 79px;
+			background: url(img/dialog/bg-center.png);
+			float: left;
+			font-size: 30px;
+		}
+		.item-center-redbag{
+			position: relative;
+			top: -30px;
+			width: 499px;
+			height: 273px;
+			background: url(img/dialog/redbag.png);
+			float: left;
+			z-index: 999;
+		}
+		.item-right{
+			width: 14px;
+			height: 79px;
+			background: url(img/dialog/bg-right.png);
+			float: left;
+		}
+		.logo{
+			position: fixed;
+			bottom: 150px;
+			width: 100%;
+			height: 20px;
+			line-height: 20px;
+			text-align:center;
+			font-size: 24px;
+			color: #666666;
+		}
+		.ui-body-bottom{
+			position: fixed;
+			bottom: 0;
+			width: 100%;
+			height: 135px;
+			background: url(img/bottom.png);	
+			background-size: 100% 100%;
+			background-repeat: no-repeat;
+		}
+	</style>
+</head>
+<body>
+	<!-- 标题栏
+	<header class="ui-header ">
+    <div class="ui-header-left" ><img src="img/top/back.png" /></div>
+    <div class="ui-header-right"><img src="img/top/friends.png" /></div>
+    <div class="ui-header-content"> 大师兄 </div>
+	</header>
+    -->
+    <div class="cover"></div>
+     <div class="ui-body-content">
+     	<div class="ui-body-content-item">
+        	<div class="item-avatar"></div>
+            <div class="item-left"></div>
+            <div class="item-center-text">新年了，快来抢红包！</div>
+            <div class="item-right"></div>
+        </div>
+        <div class="ui-body-content-item">
+        	<div class="item-avatar"></div>
+            <div class="item-left"></div>
+            <div class="item-center-text">我来测测你的抢红包手我来测测你的抢红包手速</div>
+            <div class="item-right"></div>
+        </div>
+        <div class="ui-body-content-item">
+        	<div class="item-avatar"></div>
+            <div class="item-center-redbag"></div>
+        </div>
+     </div>
+     <div class="logo">西柚工作室 中国 成都 2016</div>
+     <div class="ui-body-bottom"></div>
+</body>
+</html>
